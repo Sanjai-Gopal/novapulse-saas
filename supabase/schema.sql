@@ -1,5 +1,12 @@
--- NovaPulse AI — Production Database Schema & Row Level Security
--- Execute this script in the Supabase SQL Editor (Dashboard > SQL Editor > New query).
+-- ==============================================================================
+-- NovaPulse AI — Production Database Schema & Row Level Security (RLS)
+-- ==============================================================================
+-- INSTRUCTIONS:
+-- 1. In Supabase Dashboard, open SQL Editor (Left sidebar > SQL Editor).
+-- 2. Click "+ New query" (or select all with Ctrl+A and delete existing text).
+-- 3. Paste this ENTIRE file into the editor.
+-- 4. Click the green "Run" button (or press Ctrl + Enter).
+-- ==============================================================================
 
 -- 1. EXTENSIONS
 create extension if not exists "uuid-ossp";
@@ -62,13 +69,13 @@ create table if not exists public.api_keys (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   name text not null check (char_length(name) between 1 and 80),
-  key_prefix text not null,
+  key_prefix text not null default 'np_live_',
   key_preview text not null,
   last_used_at timestamptz,
   created_at timestamptz not null default now()
 );
 
--- 7. ENTERPRISE DEMO REQUESTS (Internal CRM / Sales capture)
+-- 7. ENTERPRISE DEMO REQUESTS (Sales / CRM capture)
 create table if not exists public.demo_requests (
   id uuid primary key default gen_random_uuid(),
   full_name text not null,
@@ -95,62 +102,70 @@ alter table public.telemetry_traces enable row level security;
 alter table public.api_keys enable row level security;
 alter table public.demo_requests enable row level security;
 
--- 10. STRICT ROLE PERMISSIONS
-revoke all on public.profiles, public.services, public.alerts, public.telemetry_traces, public.api_keys, public.demo_requests from anon;
+-- 10. CLEAN UP PRIOR POLICIES (Idempotent execution)
+drop policy if exists "users can read own profile" on public.profiles;
+drop policy if exists "users can update own profile" on public.profiles;
+drop policy if exists "users manage own services" on public.services;
+drop policy if exists "users manage own alerts" on public.alerts;
+drop policy if exists "users manage own traces" on public.telemetry_traces;
+drop policy if exists "users manage own api keys" on public.api_keys;
+drop policy if exists "anyone can insert demo requests" on public.demo_requests;
+
+-- 11. GRANT PERMISSIONS
+grant usage on schema public to anon, authenticated;
+grant select on public.profiles, public.services, public.alerts, public.telemetry_traces, public.api_keys to anon;
 grant select, insert, update on public.profiles to authenticated;
 grant select, insert, update, delete on public.services, public.alerts, public.telemetry_traces, public.api_keys to authenticated;
-
--- Allow anonymous and authenticated visitors to submit demo requests (write-only)
 grant insert on public.demo_requests to anon, authenticated;
 
--- 11. SECURE RLS POLICIES
-
--- Profiles: users can read & update only their own profile
+-- 12. SECURE RLS POLICIES (Users only see/edit their own data; anonymous sees 0 rows)
 create policy "users can read own profile"
-  on public.profiles for select to authenticated
-  using ((select auth.uid()) = id);
+  on public.profiles for select
+  to authenticated
+  using (auth.uid() = id);
 
 create policy "users can update own profile"
-  on public.profiles for update to authenticated
-  using ((select auth.uid()) = id)
-  with check ((select auth.uid()) = id);
+  on public.profiles for update
+  to authenticated
+  using (auth.uid() = id)
+  with check (auth.uid() = id);
 
--- Services: user owns their monitored services
 create policy "users manage own services"
-  on public.services for all to authenticated
-  using ((select auth.uid()) = owner_id)
-  with check ((select auth.uid()) = owner_id);
+  on public.services for all
+  to authenticated
+  using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);
 
--- Alerts: user owns their alerts
 create policy "users manage own alerts"
-  on public.alerts for all to authenticated
-  using ((select auth.uid()) = owner_id)
-  with check ((select auth.uid()) = owner_id);
+  on public.alerts for all
+  to authenticated
+  using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);
 
--- Telemetry: user owns their trace events
 create policy "users manage own traces"
-  on public.telemetry_traces for all to authenticated
-  using ((select auth.uid()) = owner_id)
-  with check ((select auth.uid()) = owner_id);
+  on public.telemetry_traces for all
+  to authenticated
+  using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);
 
--- API Keys: user owns their API keys
 create policy "users manage own api keys"
-  on public.api_keys for all to authenticated
-  using ((select auth.uid()) = owner_id)
-  with check ((select auth.uid()) = owner_id);
+  on public.api_keys for all
+  to authenticated
+  using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);
 
--- Demo requests: anyone can insert a demo inquiry
 create policy "anyone can insert demo requests"
-  on public.demo_requests for insert to anon, authenticated
+  on public.demo_requests for insert
+  to anon, authenticated
   with check (true);
 
--- 12. AUTOMATIC USER ONBOARDING TRIGGER
--- Automatically creates a user profile and starter services when a new user signs up.
+-- 13. AUTOMATIC USER ONBOARDING TRIGGER
 create or replace function public.handle_new_user()
 returns trigger
+security definer
+set search_path = public
 language plpgsql
-security definer set search_path = public
-as $$
+as $fn$
 declare
   auth_email text;
   auth_name text;
@@ -159,12 +174,12 @@ begin
   auth_email := coalesce(new.email, '');
   auth_name := coalesce(new.raw_user_meta_data->>'full_name', split_part(auth_email, '@', 1));
 
-  -- Insert profile
+  -- Create user profile
   insert into public.profiles (id, email, full_name, plan_tier)
   values (new.id, auth_email, auth_name, 'free')
   on conflict (id) do nothing;
 
-  -- Seed starter services for instant SaaS productivity
+  -- Create initial starter services for immediate productivity
   insert into public.services (owner_id, name, endpoint, environment, status, latency_ms, uptime_pct)
   values (new.id, 'API Gateway', 'https://api.novapulse.internal/v1', 'production', 'healthy', 18.4, 99.99)
   returning id into srv_api_id;
@@ -175,15 +190,15 @@ begin
   insert into public.services (owner_id, name, endpoint, environment, status, latency_ms, uptime_pct)
   values (new.id, 'Payment Processing Webhook', 'https://pay.novapulse.internal/razorpay', 'production', 'healthy', 45.8, 99.90);
 
-  -- Seed starter alert
+  -- Create starter alert
   insert into public.alerts (owner_id, service_id, title, severity, status)
   values (new.id, srv_api_id, 'High latency detected on /v1/telemetry during burst traffic', 'warning', 'active');
 
-  -- Seed starter API key preview
+  -- Create starter API key
   insert into public.api_keys (owner_id, name, key_prefix, key_preview)
   values (new.id, 'Default Telemetry Key', 'np_live_', 'np_live_••••••••••••9a7b');
 
-  -- Seed starter telemetry trace
+  -- Create starter trace span
   insert into public.telemetry_traces (owner_id, trace_id, service_name, endpoint, method, status_code, duration_ms, payload_preview)
   values (
     new.id,
@@ -198,10 +213,21 @@ begin
 
   return new;
 end;
-$$;
+$fn$;
 
--- Trigger binding
+-- Re-bind trigger cleanly
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- 14. BACKFILL EXISTING USERS
+-- Ensure users who registered before this trigger was added are initialized
+insert into public.profiles (id, email, full_name, plan_tier)
+select 
+  id,
+  coalesce(email, ''),
+  coalesce(raw_user_meta_data->>'full_name', split_part(coalesce(email, 'user'), '@', 1)),
+  'free'
+from auth.users
+on conflict (id) do nothing;
