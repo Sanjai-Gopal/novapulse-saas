@@ -5,11 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NovaPulse AI — Intelligent Workflow & API Observability</title>
   <meta name="description" content="Monitor, optimize, and automate distributed API workflows with real-time AI telemetry." />
+  <meta name="theme-color" content="#080d18" />
 
-  <!-- Google Font: Inter -->
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -21,6 +22,7 @@
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
             display: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
           },
           colors: {
             brand: {
@@ -40,10 +42,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
 
-<body class="bg-[#0b0f19] text-slate-300 font-sans antialiased selection:bg-indigo-500 selection:text-white">
+<body class="bg-[#080d18] text-slate-300 font-sans antialiased selection:bg-indigo-500 selection:text-white">
 
   <!-- ==================== NAVIGATION BAR ==================== -->
-  <header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[#0b0f19]/80 border-b border-slate-800/80 transition-all duration-300" id="navbar">
+  <header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[#080d18]/80 border-b border-slate-800/80 transition-all duration-300" id="navbar">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16 sm:h-20">
         <!-- Logo -->
@@ -62,35 +64,53 @@
           <a href="#contact" class="text-slate-300 hover:text-white transition-colors">Contact</a>
         </nav>
 
-        <!-- CTA Buttons -->
-        <div class="hidden md:flex items-center gap-4">
+        <!-- CTA Buttons (Guest vs User) -->
+        <div class="hidden md:flex items-center gap-4" id="guest-actions">
           <button onclick="openModal('login')" class="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Log In</button>
           <button onclick="openModal('signup')" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-sm shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all duration-200">
             Get Started Free
           </button>
         </div>
+        <div id="user-actions" class="hidden md:flex items-center gap-3">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs">
+            <i class="fa-solid fa-user-circle text-indigo-400 text-sm"></i>
+            <span id="nav-user-email" class="text-slate-300 font-medium max-w-[150px] truncate"></span>
+            <span id="nav-plan-pill" class="ml-1 px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">Free</span>
+          </div>
+          <a href="#workspace" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-gauge"></i> Workspace
+          </a>
+          <button onclick="logout()" class="text-xs font-semibold text-slate-400 hover:text-white px-2 py-2 transition-colors">
+            Log out
+          </button>
+        </div>
 
         <!-- Mobile Menu Toggle Button -->
-        <button id="mobile-menu-btn" class="md:hidden text-slate-300 hover:text-white p-2" aria-label="Toggle Navigation Menu">
+        <button id="mobile-menu-btn" class="md:hidden text-slate-300 hover:text-white p-2" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-menu">
           <i class="fa-solid fa-bars text-xl" id="menu-icon"></i>
         </button>
       </div>
     </div>
 
     <!-- Mobile Drawer -->
-    <div id="mobile-menu" class="hidden md:hidden bg-[#0e1424] border-b border-slate-800 px-6 py-6 space-y-4">
+    <div id="mobile-menu" class="hidden md:hidden bg-[#0c1222] border-b border-slate-800 px-6 py-6 space-y-4">
       <a href="#features" class="block text-slate-300 hover:text-indigo-400 font-medium mobile-link">Features</a>
       <a href="#how-it-works" class="block text-slate-300 hover:text-indigo-400 font-medium mobile-link">How It Works</a>
       <a href="#pricing" class="block text-slate-300 hover:text-indigo-400 font-medium mobile-link">Pricing</a>
       <a href="#contact" class="block text-slate-300 hover:text-indigo-400 font-medium mobile-link">Contact</a>
-      <div class="pt-4 border-t border-slate-800 flex flex-col gap-3">
-        <button onclick="openModal('signup')" class="w-full text-center py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg">Get Started</button>
+      <div id="mobile-guest-actions" class="pt-4 border-t border-slate-800 flex flex-col gap-3">
+        <button onclick="openModal('login')" class="w-full text-center py-2.5 border border-slate-700 text-white font-medium rounded-lg">Log In</button>
+        <button onclick="openModal('signup')" class="w-full text-center py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg">Get Started Free</button>
+      </div>
+      <div id="mobile-user-actions" class="hidden pt-4 border-t border-slate-800 flex flex-col gap-3">
+        <a href="#workspace" class="w-full text-center py-2.5 bg-indigo-600 text-white font-medium rounded-lg mobile-link">Open Workspace</a>
+        <button onclick="logout()" class="w-full text-center py-2.5 border border-slate-700 text-slate-200 font-medium rounded-lg">Log out</button>
       </div>
     </div>
   </header>
 
   <!-- ==================== HERO SECTION ==================== -->
-  <section id="hero" class="relative pt-32 pb-20 md:pt-44 md:pb-32 overflow-hidden">
+  <section id="hero" class="relative pt-32 pb-20 md:pt-44 md:pb-28 overflow-hidden">
     <!-- Glow Backdrop -->
     <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-indigo-600/20 blur-[130px] rounded-full -z-10 pointer-events-none"></div>
 
@@ -98,7 +118,7 @@
       <!-- Badge -->
       <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-xs font-semibold text-indigo-300 mb-8 animate-fade-in">
         <span class="flex h-2 w-2 rounded-full bg-indigo-400 animate-pulse"></span>
-        NovaPulse 2.4 is Live: Next-Gen AI Tracing
+        NovaPulse 2.4 Live: Autonomous API Telemetry & Tracing
         <i class="fa-solid fa-chevron-right text-[10px]"></i>
       </div>
 
@@ -117,17 +137,17 @@
 
       <!-- Action Buttons -->
       <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <button onclick="openModal('signup')" class="w-full sm:w-auto px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 group">
-          Start 14-Day Free Trial
+        <button id="hero-cta-btn" onclick="openModal('signup')" class="w-full sm:w-auto px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 group">
+          Start Free Monitoring
           <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
         </button>
-        <a href="#how-it-works" class="w-full sm:w-auto px-8 py-3.5 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
-          <i class="fa-solid fa-play text-xs text-indigo-400"></i> See How It Works
-        </a>
+        <button id="hero-secondary-btn" onclick="loginAsDemoUser()" class="w-full sm:w-auto px-8 py-3.5 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
+          <i class="fa-solid fa-bolt text-indigo-400"></i> Open Live Demo Workspace
+        </button>
       </div>
 
       <!-- Trust Badges -->
-      <p class="mt-6 text-xs text-slate-400 font-medium">No credit card required • 2-minute SDK install • SOC-2 Type II Certified</p>
+      <p class="mt-6 text-xs text-slate-400 font-medium">Enterprise OpenTelemetry Native • Real-time Supabase Data Isolation • Secure Razorpay Billing</p>
 
       <!-- Visual Dashboard Preview Mockup -->
       <div class="mt-14 max-w-5xl mx-auto rounded-2xl p-2 bg-gradient-to-b from-slate-700/50 via-slate-800/20 to-transparent border border-slate-700/60 shadow-2xl backdrop-blur-sm">
@@ -138,53 +158,68 @@
               <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
               <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
               <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
-              <span class="ml-2 text-xs font-mono text-slate-400 hidden sm:inline">cluster-production-us-east.novapulse.io</span>
+              <span class="text-xs text-slate-400 ml-2 font-mono">novapulse-telemetry-us-east-1.internal</span>
             </div>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Systems 99.99% Nominal
-            </span>
-          </div>
-
-          <!-- Mock Metric Grid -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
-            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800/80">
-              <span class="text-xs text-slate-400">P99 Latency</span>
-              <p class="text-2xl font-bold text-white mt-1">14.2ms</p>
-              <span class="text-xs text-emerald-400 font-medium">↓ 32% faster</span>
-            </div>
-            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800/80">
-              <span class="text-xs text-slate-400">Total Requests</span>
-              <p class="text-2xl font-bold text-white mt-1">48.9M</p>
-              <span class="text-xs text-indigo-400 font-medium">↑ 18% this week</span>
-            </div>
-            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800/80">
-              <span class="text-xs text-slate-400">Error Rate</span>
-              <p class="text-2xl font-bold text-white mt-1">0.002%</p>
-              <span class="text-xs text-emerald-400 font-medium">Within SLA</span>
-            </div>
-            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800/80">
-              <span class="text-xs text-slate-400">AI Anomalies Resolved</span>
-              <p class="text-2xl font-bold text-white mt-1">127</p>
-              <span class="text-xs text-purple-400 font-medium">Self-healed</span>
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                99.98% Uptime
+              </span>
             </div>
           </div>
 
-          <!-- Mock Visual Trace Chart -->
-          <div class="mt-5 p-4 rounded-lg bg-slate-900/40 border border-slate-800/60">
-            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
-              <span>Real-Time Request Pipeline Throughput</span>
-              <span class="font-mono text-indigo-400">Live 1s interval</span>
+          <!-- Mock Dashboard Metrics -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+              <div class="text-slate-400 text-xs font-medium">P99 Endpoint Latency</div>
+              <div class="text-2xl font-bold text-white mt-1">18.4ms <span class="text-emerald-400 text-xs font-normal">↓ 4.2ms</span></div>
+              <div class="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
+                <div class="bg-emerald-500 h-full w-[28%] rounded-full"></div>
+              </div>
             </div>
-            <div class="h-20 flex items-end gap-1.5 sm:gap-2 pt-2">
-              <div class="w-full bg-indigo-500/30 rounded-t h-[40%] hover:bg-indigo-400 transition-colors"></div>
-              <div class="w-full bg-indigo-500/40 rounded-t h-[65%] hover:bg-indigo-400 transition-colors"></div>
-              <div class="w-full bg-indigo-500/50 rounded-t h-[50%] hover:bg-indigo-400 transition-colors"></div>
-              <div class="w-full bg-indigo-500/60 rounded-t h-[80%] hover:bg-indigo-400 transition-colors"></div>
-              <div class="w-full bg-indigo-500/40 rounded-t h-[45%] hover:bg-indigo-400 transition-colors"></div>
-              <div class="w-full bg-indigo-500/70 rounded-t h-[95%] hover:bg-indigo-400 transition-colors"></div>
-              <div class="w-full bg-indigo-500/50 rounded-t h-[60%] hover:bg-indigo-400 transition-colors"></div>
-              <div class="w-full bg-indigo-500/80 rounded-t h-[85%] hover:bg-indigo-400 transition-colors"></div>
-              <div class="w-full bg-indigo-500 rounded-t h-[75%] hover:bg-indigo-400 transition-colors"></div>
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+              <div class="text-slate-400 text-xs font-medium">Ingested Traces (24h)</div>
+              <div class="text-2xl font-bold text-white mt-1">4.28M <span class="text-indigo-400 text-xs font-normal">+18.5%</span></div>
+              <div class="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
+                <div class="bg-indigo-500 h-full w-[65%] rounded-full"></div>
+              </div>
+            </div>
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+              <div class="text-slate-400 text-xs font-medium">Autonomous Anomalies Prevented</div>
+              <div class="text-2xl font-bold text-white mt-1">29 <span class="text-emerald-400 text-xs font-normal">100% self-healed</span></div>
+              <div class="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
+                <div class="bg-purple-500 h-full w-[94%] rounded-full"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Microservice Topology Preview -->
+          <div class="bg-slate-950/80 rounded-xl p-4 border border-slate-800/80">
+            <div class="flex items-center justify-between text-xs text-slate-400 font-mono mb-3">
+              <span>LIVE TRACE STREAM & CASCADE CORRELATION</span>
+              <span class="text-indigo-400">OTLP/HTTP v1.3</span>
+            </div>
+            <div class="space-y-2 font-mono text-xs">
+              <div class="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-800/50">
+                <div class="flex items-center gap-2">
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">GET</span>
+                  <span class="text-slate-200">/v1/orders/checkout</span>
+                </div>
+                <div class="flex items-center gap-4 text-slate-400">
+                  <span>status: 200</span>
+                  <span class="text-emerald-400">12ms</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-800/50">
+                <div class="flex items-center gap-2">
+                  <span class="px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400 font-bold text-[10px]">POST</span>
+                  <span class="text-slate-200">/v1/telemetry/spans</span>
+                </div>
+                <div class="flex items-center gap-4 text-slate-400">
+                  <span>status: 200</span>
+                  <span class="text-emerald-400">18ms</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -192,10 +227,314 @@
     </div>
   </section>
 
+  <!-- ==================== FUNCTIONAL SAAS WORKSPACE (AUTHENTICATED) ==================== -->
+  <section id="workspace" class="hidden py-16 border-y border-slate-800 bg-[#080d19]/95 relative scroll-mt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Schema Notice Banner (Appears if Supabase tables have not been created yet) -->
+      <div id="schema-notice-banner" class="hidden mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-start gap-3">
+          <i class="fa-solid fa-triangle-exclamation text-amber-400 text-base mt-0.5"></i>
+          <div>
+            <strong class="font-semibold text-white">Supabase Cloud Database Tables Not Initialized Yet</strong>
+            <p class="text-amber-200/80 mt-0.5">Your Supabase project is connected, but the database tables (`services`, `alerts`, `profiles`) haven't been created. Running in responsive local fallback mode.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 self-start sm:self-auto flex-shrink-0">
+          <button onclick="copySchemaFileContent()" class="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 rounded-lg font-semibold transition-all flex items-center gap-1.5">
+            <i class="fa-regular fa-copy"></i> Copy SQL Schema
+          </button>
+        </div>
+      </div>
+
+      <!-- Workspace Top Banner -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-800/80">
+        <div>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Workspace Active
+            </span>
+            <span id="workspace-mode-badge" class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+              <i class="fa-solid fa-shield-halved text-indigo-400 text-[10px]"></i> Local Demo Mode
+            </span>
+          </div>
+          <h2 class="mt-3 font-display font-bold text-2xl sm:text-3xl text-white flex items-center gap-3">
+            <span>Telemetry Center</span>
+            <span id="user-plan-badge" class="text-xs px-2.5 py-1 uppercase tracking-wider rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold">Free Tier</span>
+          </h2>
+          <p class="text-sm text-slate-400 mt-1">
+            Logged in as <span id="workspace-email" class="text-slate-200 font-medium"></span>
+          </p>
+        </div>
+
+        <!-- Quick Action Toolbar -->
+        <div class="flex flex-wrap items-center gap-3">
+          <button id="btn-quick-trace" onclick="handleSimulateTrace()" class="px-4 py-2.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-bolt"></i> Send Test Trace
+          </button>
+          <button onclick="openServiceModal()" class="px-4 py-2.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i> Add Service
+          </button>
+          <button onclick="openPaymentModal()" class="px-4 py-2.5 text-xs font-semibold rounded-lg bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 text-amber-300 border border-amber-500/30 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-crown"></i> Plan & Billing
+          </button>
+        </div>
+      </div>
+
+      <!-- Stat Summary Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 my-8">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
+            <span>Monitored Services</span>
+            <i class="fa-solid fa-server text-indigo-400"></i>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="stat-services-count" class="text-2xl font-bold text-white">0</span>
+            <span class="text-xs text-emerald-400 flex items-center"><i class="fa-solid fa-circle text-[6px] mr-1"></i> Online</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
+            <span>Average Latency</span>
+            <i class="fa-solid fa-gauge-high text-emerald-400"></i>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="stat-avg-latency" class="text-2xl font-bold text-white">--</span>
+            <span class="text-xs text-slate-400">ms</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
+            <span>System Health</span>
+            <i class="fa-solid fa-heart-pulse text-purple-400"></i>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="stat-health-pct" class="text-2xl font-bold text-emerald-400">99.98%</span>
+            <span class="text-xs text-slate-400">Uptime</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
+            <span>Active Incidents</span>
+            <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="stat-active-alerts" class="text-2xl font-bold text-amber-400">0</span>
+            <span class="text-xs text-slate-400">Unresolved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation Header -->
+      <div class="flex border-b border-slate-800 overflow-x-auto gap-2 sm:gap-6 mb-8 text-sm font-medium">
+        <button onclick="switchTab('services')" id="tab-btn-services" class="tab-link pb-4 px-2 text-indigo-400 border-b-2 border-indigo-500 whitespace-nowrap flex items-center gap-2">
+          <i class="fa-solid fa-layer-group"></i> Monitored Services
+        </button>
+        <button onclick="switchTab('traces')" id="tab-btn-traces" class="tab-link pb-4 px-2 text-slate-400 hover:text-white border-b-2 border-transparent whitespace-nowrap flex items-center gap-2">
+          <i class="fa-solid fa-wave-square"></i> Live Traces
+        </button>
+        <button onclick="switchTab('alerts')" id="tab-btn-alerts" class="tab-link pb-4 px-2 text-slate-400 hover:text-white border-b-2 border-transparent whitespace-nowrap flex items-center gap-2">
+          <i class="fa-solid fa-bell"></i> Alerts & Incidents
+        </button>
+        <button onclick="switchTab('apikeys')" id="tab-btn-apikeys" class="tab-link pb-4 px-2 text-slate-400 hover:text-white border-b-2 border-transparent whitespace-nowrap flex items-center gap-2">
+          <i class="fa-solid fa-key"></i> API Keys & SDK
+        </button>
+        <button onclick="switchTab('billing')" id="tab-btn-billing" class="tab-link pb-4 px-2 text-slate-400 hover:text-white border-b-2 border-transparent whitespace-nowrap flex items-center gap-2">
+          <i class="fa-solid fa-credit-card"></i> Plan & Billing
+        </button>
+      </div>
+
+      <!-- Tab 1: Services List -->
+      <div id="tab-content-services" class="tab-pane space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/40 p-4 rounded-xl border border-slate-800">
+          <div class="text-sm text-slate-300">
+            Registered endpoints and microservices connected to your NovaPulse pipeline.
+          </div>
+          <button onclick="openServiceModal()" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-all flex items-center gap-2 self-start sm:self-auto">
+            <i class="fa-solid fa-plus"></i> Register Endpoint
+          </button>
+        </div>
+
+        <div id="services-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dynamically populated by renderServices() -->
+        </div>
+      </div>
+
+      <!-- Tab 2: Live Traces Stream -->
+      <div id="tab-content-traces" class="tab-pane hidden space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/40 p-4 rounded-xl border border-slate-800">
+          <div class="text-sm text-slate-300">
+            Real-time OpenTelemetry trace waterfall and request telemetry across your cluster.
+          </div>
+          <button onclick="handleSimulateTrace()" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-all flex items-center gap-2 self-start sm:self-auto">
+            <i class="fa-solid fa-paper-plane"></i> Emit Trace Span
+          </button>
+        </div>
+
+        <div class="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-950/80 text-slate-400 uppercase border-b border-slate-800">
+                <tr>
+                  <th class="px-4 py-3">Trace ID</th>
+                  <th class="px-4 py-3">Service</th>
+                  <th class="px-4 py-3">Endpoint</th>
+                  <th class="px-4 py-3">Method</th>
+                  <th class="px-4 py-3">Status</th>
+                  <th class="px-4 py-3">Duration</th>
+                  <th class="px-4 py-3 text-right">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="traces-table-body" class="divide-y divide-slate-800/60">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Alerts & Incidents -->
+      <div id="tab-content-alerts" class="tab-pane hidden space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/40 p-4 rounded-xl border border-slate-800">
+          <div class="text-sm text-slate-300">
+            Real-time incident anomalies and SLO alert triggers.
+          </div>
+          <button onclick="openAlertModal()" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition-all flex items-center gap-2 self-start sm:self-auto">
+            <i class="fa-solid fa-plus"></i> Create Manual Alert
+          </button>
+        </div>
+
+        <div id="alerts-list-container" class="space-y-3">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Tab 4: API Keys & SDK Integration -->
+      <div id="tab-content-apikeys" class="tab-pane hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/40 p-4 rounded-xl border border-slate-800">
+          <div>
+            <div class="text-sm font-semibold text-white">Ingestion Tokens & API Keys</div>
+            <div class="text-xs text-slate-400 mt-0.5">Use these credentials in your OpenTelemetry collector or application SDK.</div>
+          </div>
+          <button onclick="openApiKeyModal()" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-all flex items-center gap-2 self-start sm:self-auto">
+            <i class="fa-solid fa-key"></i> Generate Key
+          </button>
+        </div>
+
+        <div id="apikeys-list-container" class="space-y-3">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- SDK Quickstart Guides -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-6 mt-6">
+          <h4 class="font-display font-bold text-base text-white mb-2">Connect Your Services via OpenTelemetry SDK</h4>
+          <p class="text-xs text-slate-400 mb-4">Export telemetry traces directly into your NovaPulse pipeline using standard libraries.</p>
+          
+          <div class="space-y-4">
+            <div>
+              <div class="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-1">Node.js / Express</div>
+              <div class="bg-black/60 border border-slate-800 rounded-lg p-3 font-mono text-xs text-indigo-300 overflow-x-auto relative group">
+                <code>import { initNovaPulse } from '@novapulse/sdk';<br/>initNovaPulse({ apiKey: process.env.NOVAPULSE_API_KEY, serviceName: 'checkout-service' });</code>
+                <button onclick="copySnippet(`import { initNovaPulse } from '@novapulse/sdk';\ninitNovaPulse({ apiKey: process.env.NOVAPULSE_API_KEY, serviceName: 'checkout-service' });`)" class="absolute top-2 right-2 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">Copy</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Python / FastAPI</div>
+              <div class="bg-black/60 border border-slate-800 rounded-lg p-3 font-mono text-xs text-emerald-300 overflow-x-auto relative group">
+                <code>from novapulse import NovaPulseMiddleware<br/>app.add_middleware(NovaPulseMiddleware, api_key=os.getenv("NOVAPULSE_API_KEY"))</code>
+                <button onclick="copySnippet(`from novapulse import NovaPulseMiddleware\napp.add_middleware(NovaPulseMiddleware, api_key=os.getenv('NOVAPULSE_API_KEY'))`)" class="absolute top-2 right-2 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">Copy</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">cURL / Raw Telemetry POST</div>
+              <div class="bg-black/60 border border-slate-800 rounded-lg p-3 font-mono text-xs text-amber-300 overflow-x-auto relative group">
+                <code>curl -X POST https://telemetry.novapulse.io/v1/traces -H "Authorization: Bearer np_live_..." -d '{"service":"edge-router"}'</code>
+                <button onclick="copySnippet(`curl -X POST https://telemetry.novapulse.io/v1/traces -H &quot;Authorization: Bearer np_live_...&quot; -d '{&quot;service&quot;:&quot;edge-router&quot;}'`)" class="absolute top-2 right-2 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 5: Plan & Billing Details -->
+      <div id="tab-content-billing" class="tab-pane hidden space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Current Plan Card -->
+          <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Current Plan</span>
+                <span id="billing-tier-badge" class="px-2.5 py-1 text-xs font-bold rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase">Free Plan</span>
+              </div>
+              <h3 class="text-2xl font-bold text-white mb-2">Community Developer</h3>
+              <p class="text-xs text-slate-400 mb-6">Access to real-time service health, 50,000 trace events/month, and basic alert routing.</p>
+              
+              <div class="space-y-2.5 text-xs text-slate-300 mb-6">
+                <div class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Up to 5 monitored services</div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Standard OpenTelemetry ingest</div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Row Level Security user isolation</div>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-800 text-xs text-slate-400">
+              Need higher throughput or AI root cause diagnostics? Upgrade your subscription below.
+            </div>
+          </div>
+
+          <!-- Upgrade to Growth Plan Card -->
+          <div class="bg-gradient-to-b from-slate-900 via-slate-900/90 to-[#0e172a] border-2 border-indigo-500/80 rounded-2xl p-6 flex flex-col justify-between shadow-xl shadow-indigo-500/10">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Recommended Upgrade</span>
+                <span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-indigo-600 text-white uppercase tracking-wider">Growth Tier</span>
+              </div>
+              <h3 class="text-2xl font-bold text-white mb-1">Developer / Growth</h3>
+              <div class="text-3xl font-extrabold text-white my-3">$29 <span class="text-xs text-slate-400 font-medium">/ month</span></div>
+              <p class="text-xs text-slate-400 mb-6">For expanding teams requiring 5M traces/mo, extended 7-day metric retention, and Slack alerting.</p>
+              
+              <div class="space-y-2.5 text-xs text-slate-300 mb-6">
+                <div class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Up to 5 Million Traces / mo</div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Slack & PagerDuty Alert Dispatch</div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Dedicated API Ingestion Tokens</div>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <!-- Direct Razorpay Hosted Payment Link -->
+              <a href="https://razorpay.me/@sanjai6676" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-xl font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all text-center text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Pay via Razorpay Link ($29 / mo)
+              </a>
+              <button onclick="openPaymentModal()" class="w-full py-2.5 px-4 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors text-center text-xs flex items-center justify-center gap-2">
+                <i class="fa-solid fa-shield-check"></i> Enter Payment ID / Verify Checkout
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Security and Billing Notice -->
+        <div class="p-4 rounded-xl bg-slate-900/40 border border-slate-800 text-xs text-slate-400 flex items-start gap-3">
+          <i class="fa-solid fa-shield-halved text-indigo-400 text-sm mt-0.5"></i>
+          <div>
+            <strong class="text-slate-200">Secure Payment Architecture:</strong> Payments are processed via Razorpay's PCI-DSS compliant checkout. Secret keys (`RAZORPAY_KEY_SECRET`) and Supabase service-role keys are kept strictly server-side in `/api/razorpay/...` serverless endpoints to prevent exposure.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- ==================== LOGO CLOUD ==================== -->
   <section class="border-y border-slate-800/60 py-10 bg-slate-900/30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-6">Trusted by fast-scaling engineering teams worldwide</p>
+      <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-6">Designed for modern engineering teams</p>
       <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-6 items-center justify-center opacity-65">
         <span class="font-display font-bold text-lg text-slate-400"><i class="fa-brands fa-aws mr-2"></i>CloudScale</span>
         <span class="font-display font-bold text-lg text-slate-400"><i class="fa-brands fa-docker mr-2"></i>ContainerX</span>
@@ -211,64 +550,63 @@
   <section id="features" class="py-24 relative">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-3xl mx-auto mb-16">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Engineered for Reliability</h2>
-        <p class="mt-3 font-display font-bold text-3xl sm:text-4xl text-white">Full-Stack Observability Without the Complexity</p>
-        <p class="mt-4 text-slate-400">Everything you need to ship reliable services, diagnose regressions in seconds, and keep your production latency ultra-low.</p>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Core Telemetry Architecture</h2>
+        <p class="mt-3 font-display font-bold text-3xl sm:text-4xl text-white">Full-Stack Observability Built for Speed</p>
+        <p class="mt-4 text-slate-400 text-base">From single serverless functions to multi-region Kubernetes clusters, NovaPulse correlates distributed spans into actionable signals.</p>
       </div>
 
-      <!-- Feature Grid (6 Cards) -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         
         <!-- Card 1 -->
         <div class="feature-card bg-slate-900/50 hover:bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1 shadow-lg">
           <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl mb-6">
-            <i class="fa-solid fa-brain"></i>
+            <i class="fa-solid fa-diagram-project"></i>
           </div>
-          <h3 class="font-display font-bold text-xl text-white mb-2">Automated Root Cause AI</h3>
+          <h3 class="font-display font-bold text-xl text-white mb-2">Automated Distributed Tracing</h3>
           <p class="text-sm text-slate-400 leading-relaxed">
-            NovaPulse analyzes stack traces, distributed logs, and commit histories to isolate breaking microservices automatically.
+            Zero-instrumentation span propagation across HTTP, gRPC, and message brokers with microsecond accuracy.
           </p>
         </div>
 
         <!-- Card 2 -->
         <div class="feature-card bg-slate-900/50 hover:bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1 shadow-lg">
           <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-6">
-            <i class="fa-solid fa-network-wired"></i>
+            <i class="fa-solid fa-brain"></i>
           </div>
-          <h3 class="font-display font-bold text-xl text-white mb-2">Real-Time Trace Mapping</h3>
+          <h3 class="font-display font-bold text-xl text-white mb-2">AI Root-Cause Diagnostics</h3>
           <p class="text-sm text-slate-400 leading-relaxed">
-            Gain end-to-end distributed transaction visibility across GraphQL, REST, gRPC, and message brokers with zero overhead.
+            Correlate error spikes with code regressions, flaky third-party endpoints, and unindexed database queries automatically.
           </p>
         </div>
 
         <!-- Card 3 -->
         <div class="feature-card bg-slate-900/50 hover:bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1 shadow-lg">
           <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-6">
-            <i class="fa-solid fa-shield-virus"></i>
+            <i class="fa-solid fa-shield-halved"></i>
           </div>
-          <h3 class="font-display font-bold text-xl text-white mb-2">Predictive Outage Defense</h3>
+          <h3 class="font-display font-bold text-xl text-white mb-2">Self-Healing Circuit Breakers</h3>
           <p class="text-sm text-slate-400 leading-relaxed">
-            Predict cascading memory leaks and database connection exhaustion up to 45 minutes before they escalate into incidents.
+            Prevent catastrophic cascading failures by tripping smart throttles and triggering fallback mock responses in real-time.
           </p>
         </div>
 
         <!-- Card 4 -->
         <div class="feature-card bg-slate-900/50 hover:bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1 shadow-lg">
-          <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-6">
-            <i class="fa-solid fa-code-merge"></i>
+          <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center text-xl mb-6">
+            <i class="fa-solid fa-gauge-high"></i>
           </div>
-          <h3 class="font-display font-bold text-xl text-white mb-2">CI/CD Regression Guard</h3>
+          <h3 class="font-display font-bold text-xl text-white mb-2">Real-Time SLO & Latency Budgets</h3>
           <p class="text-sm text-slate-400 leading-relaxed">
-            Block performance regressions directly within your GitHub or GitLab pull requests before bad code reaches production.
+            Monitor P50, P95, and P99 latency budgets with instant burn-rate alerts before error budgets get exhausted.
           </p>
         </div>
 
         <!-- Card 5 -->
         <div class="feature-card bg-slate-900/50 hover:bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1 shadow-lg">
-          <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center text-xl mb-6">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-6">
             <i class="fa-solid fa-bell"></i>
           </div>
-          <h3 class="font-display font-bold text-xl text-white mb-2">Smart Alert De-Duplication</h3>
+          <h3 class="font-display font-bold text-xl text-white mb-2">Intelligent Alert Consolidation</h3>
           <p class="text-sm text-slate-400 leading-relaxed">
             Eliminate alert fatigue. Merge hundreds of noisy alerts into single, actionable Slack and PagerDuty incident reports.
           </p>
@@ -352,7 +690,7 @@
 
       <!-- Pricing Plans Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        <!-- Starter Plan -->
+        <!-- Starter Plan (Developer / Growth with Razorpay Link) -->
         <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 hover:border-slate-700 transition-all flex flex-col justify-between">
           <div>
             <h3 class="font-display font-bold text-xl text-white">Developer / Growth</h3>
@@ -369,12 +707,14 @@
               <li class="flex items-center gap-3 text-slate-400"><i class="fa-solid fa-xmark text-slate-600"></i> Custom SLA Agreement</li>
             </ul>
           </div>
-          <button onclick="openModal('signup')" class="mt-8 w-full py-3 px-4 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-white transition-colors">
-            Get Started with Growth
-          </button>
+          <!-- Pricing button connects directly to Razorpay payment link -->
+          <a href="https://razorpay.me/@sanjai6676" target="_blank" rel="noopener noreferrer" class="mt-8 w-full py-3 px-4 rounded-xl font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors text-center flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30">
+            <span>Get Started with Growth</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+          </a>
         </div>
 
-        <!-- Enterprise Plan (Featured) -->
+        <!-- Enterprise Plan (Featured - Requests a Demo) -->
         <div class="bg-gradient-to-b from-slate-900 via-slate-900/90 to-[#0e172a] border-2 border-indigo-500/80 rounded-3xl p-8 relative shadow-2xl shadow-indigo-500/10 flex flex-col justify-between">
           <div class="absolute -top-3.5 right-6 bg-indigo-600 text-white text-xs font-bold uppercase tracking-wider py-1 px-3 rounded-full">
             Most Popular
@@ -394,8 +734,9 @@
               <li class="flex items-center gap-3"><i class="fa-solid fa-check text-indigo-400"></i> Dedicated TAM & 99.99% SLA</li>
             </ul>
           </div>
-          <button onclick="openModal('demo')" class="mt-8 w-full py-3 px-4 rounded-xl font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition-all">
-            Schedule Enterprise Demo
+          <button onclick="openModal('demo')" class="mt-8 w-full py-3 px-4 rounded-xl font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2">
+            <span>Schedule Enterprise Demo</span>
+            <i class="fa-solid fa-calendar-check text-xs"></i>
           </button>
         </div>
       </div>
@@ -407,8 +748,8 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-12">
         <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Connect With Engineers</h2>
-        <p class="mt-3 font-display font-bold text-3xl sm:text-4xl text-white">Request a Guided Walkthrough</p>
-        <p class="mt-4 text-slate-400">See how NovaPulse cuts mean time to resolution (MTTR) by 78%. We'll respond within 2 hours.</p>
+        <p class="mt-3 font-display font-bold text-3xl sm:text-4xl text-white">Request an Enterprise Demo</p>
+        <p class="mt-4 text-slate-400">Schedule a 1-on-1 walkthrough tailored to your microservice architecture and scale requirements.</p>
       </div>
 
       <!-- Main Form Container -->
@@ -420,7 +761,7 @@
           </div>
           <h3 class="font-display font-bold text-2xl text-white">Demo Request Received!</h3>
           <p class="text-slate-400 mt-2 max-w-md mx-auto">
-            Thank you for reaching out. A systems architect has been assigned and will email you meeting times shortly.
+            Thank you for reaching out. Our solutions architecture team has captured your request and will follow up with scheduling details.
           </p>
           <button onclick="resetContactForm()" class="mt-6 px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-sm font-semibold text-white rounded-lg transition-colors">
             Submit Another Request
@@ -467,7 +808,7 @@
 
           <div>
             <label for="use-case" class="block text-sm font-medium text-slate-300 mb-2">Primary Use Case or Challenges</label>
-            <textarea id="use-case" rows="4" placeholder="Tell us about your microservice architecture or issues you're aiming to resolve..."
+            <textarea id="use-case" rows="3" placeholder="Tell us about your microservice architecture or issues you're aiming to resolve..."
                       class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm"></textarea>
           </div>
 
@@ -539,16 +880,16 @@
       </div>
 
       <div class="mt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
-        <p>© 2026 NovaPulse Technologies, Inc. Built for Sankar Group Front-End Assessment.</p>
-        <p class="flex items-center gap-1">Designed with precision & performance.</p>
+        <p>© 2026 NovaPulse Technologies, Inc. Built with Supabase & Razorpay.</p>
+        <p class="flex items-center gap-1">Enterprise Telemetry & Observability SaaS</p>
       </div>
     </div>
   </footer>
 
-  <!-- ==================== MODAL (SIGN UP / GET STARTED) ==================== -->
-  <div id="action-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 sm:p-8 relative shadow-2xl animate-fade-in">
-      <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+  <!-- ==================== AUTH MODAL (SIGN UP / SIGN IN) ==================== -->
+  <div id="action-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl p-6 sm:p-8 relative shadow-2xl animate-fade-in">
+      <button onclick="closeModal()" aria-label="Close dialog" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
 
@@ -556,37 +897,208 @@
         <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-lg mb-4">
           <i class="fa-solid fa-user-plus" id="modal-icon"></i>
         </div>
-        <h3 class="font-display font-bold text-2xl text-white" id="modal-title">Create Free Account</h3>
-        <p class="text-slate-400 text-sm mt-1 mb-6" id="modal-desc">Start your 14-day free trial. No card required.</p>
+        <h3 class="font-display font-bold text-2xl text-white" id="modal-title">Create your account</h3>
+        <p class="text-slate-400 text-xs mt-1 mb-5" id="modal-desc">Create an account to open your private workspace.</p>
 
-        <!-- Modal Form -->
-        <form id="modal-form" onsubmit="handleModalSubmit(event)" class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Work Email</label>
-            <input type="email" id="modal-email" required placeholder="developer@company.com"
-                   class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-indigo-500" />
-            <p class="text-rose-400 text-xs mt-1 hidden" id="modal-email-error">Please provide a valid email address.</p>
-          </div>
+        <!-- 1-Click Instant Demo Button (Always available for frictionless access) -->
+        <button type="button" onclick="loginAsDemoUser()" class="w-full py-2.5 px-4 mb-4 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 hover:from-indigo-500/30 hover:to-purple-500/30 border border-indigo-500/30 text-indigo-300 font-semibold rounded-lg transition-all flex items-center justify-center gap-2 text-xs shadow-sm">
+          <i class="fa-solid fa-bolt text-indigo-400"></i>
+          <span>Instant Demo Access (1-Click Guest Pass)</span>
+        </button>
 
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Password</label>
-            <input type="password" id="modal-password" required placeholder="••••••••••••" minlength="8"
-                   class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-indigo-500" />
-          </div>
+        <div class="flex items-center gap-3 text-[11px] uppercase tracking-wider text-slate-500 mb-4">
+          <span class="h-px bg-slate-800 flex-1"></span>or connect account<span class="h-px bg-slate-800 flex-1"></span>
+        </div>
 
-          <div id="modal-success" class="hidden p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-sm text-center">
-            🎉 Account created successfully! Redirecting...
-          </div>
-
-          <button type="submit" id="modal-submit-btn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow-md transition-all">
-            Continue to Dashboard
+        <!-- Google OAuth -->
+        <div class="space-y-4">
+          <button id="google-auth-btn" type="button" onclick="signInWithGoogle()" class="w-full py-2.5 bg-white hover:bg-slate-100 text-slate-900 font-semibold rounded-lg transition-all flex items-center justify-center gap-3 text-xs">
+            <i class="fa-brands fa-google text-red-500 text-sm"></i><span>Continue with Google</span>
           </button>
-        </form>
+          
+          <div class="flex items-center gap-3 text-[11px] uppercase tracking-wider text-slate-500"><span class="h-px bg-slate-800 flex-1"></span>or with email & password<span class="h-px bg-slate-800 flex-1"></span></div>
+          
+          <form id="modal-form" class="space-y-4">
+            <div id="email-fields">
+              <label for="modal-email" class="block text-xs font-semibold text-slate-300 uppercase mb-1">Email</label>
+              <input type="email" id="modal-email" required autocomplete="email" maxlength="254" placeholder="you@company.com"
+                     class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 text-xs focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div id="password-fields">
+              <label for="modal-password" class="block text-xs font-semibold text-slate-300 uppercase mb-1">Password</label>
+              <input type="password" id="modal-password" required autocomplete="new-password" placeholder="At least 6 characters" minlength="6" maxlength="128"
+                     class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 text-xs focus:outline-none focus:border-indigo-500" />
+            </div>
+            <button type="submit" id="modal-submit-btn" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow-md transition-all text-xs">Create account</button>
+          </form>
+
+          <div id="modal-error-box" class="hidden text-rose-300 text-xs bg-rose-500/10 border border-rose-500/20 p-3 rounded-lg space-y-2" role="alert">
+            <p id="modal-error"></p>
+            <div id="unconfirmed-actions" class="hidden pt-1 border-t border-rose-500/20 flex items-center justify-between">
+              <button type="button" onclick="loginAsDemoUser()" class="text-indigo-300 hover:text-white font-semibold underline text-[11px]">Enter Demo Mode Instead</button>
+              <button type="button" onclick="resendConfirmation()" class="text-amber-300 hover:text-white font-semibold underline text-[11px]">Resend Email Link</button>
+            </div>
+          </div>
+
+          <div id="modal-notice-box" class="hidden text-emerald-300 text-xs bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg space-y-1.5" role="status">
+            <p id="modal-notice"></p>
+            <div class="pt-1 border-t border-emerald-500/20">
+              <button type="button" onclick="loginAsDemoUser()" class="text-indigo-300 hover:text-white font-semibold underline text-[11px]">Skip waiting and enter Demo Mode →</button>
+            </div>
+          </div>
+
+          <p class="text-center text-xs text-slate-400">
+            <span id="modal-switch-copy">Already have an account?</span> 
+            <button type="button" id="modal-switch" onclick="switchAuthMode()" class="text-indigo-300 hover:text-white underline font-medium">Sign in</button>
+          </p>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- ==================== ADD SERVICE MODAL ==================== -->
+  <div id="service-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 relative shadow-2xl animate-fade-in">
+      <button onclick="closeServiceModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <h3 class="font-display font-bold text-xl text-white mb-1">Register New Service</h3>
+      <p class="text-xs text-slate-400 mb-5">Connect an API gateway, microservice, or background queue for telemetry.</p>
+      
+      <form id="service-form" class="space-y-4">
+        <div>
+          <label for="srv-name" class="block text-xs font-semibold text-slate-300 uppercase mb-1">Service Name *</label>
+          <input type="text" id="srv-name" required placeholder="Billing Service, User Auth, etc." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white text-xs focus:outline-none focus:border-indigo-500" />
+        </div>
+        <div>
+          <label for="srv-endpoint" class="block text-xs font-semibold text-slate-300 uppercase mb-1">Endpoint URL</label>
+          <input type="url" id="srv-endpoint" placeholder="https://api.domain.com/v1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white text-xs focus:outline-none focus:border-indigo-500" />
+        </div>
+        <div>
+          <label for="srv-env" class="block text-xs font-semibold text-slate-300 uppercase mb-1">Environment</label>
+          <select id="srv-env" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white text-xs focus:outline-none focus:border-indigo-500">
+            <option value="production">Production</option>
+            <option value="staging">Staging</option>
+            <option value="development">Development</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-all text-xs">
+          Save & Begin Monitoring
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== CREATE ALERT MODAL ==================== -->
+  <div id="alert-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 relative shadow-2xl animate-fade-in">
+      <button onclick="closeAlertModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <h3 class="font-display font-bold text-xl text-white mb-1">Create Custom Alert</h3>
+      <p class="text-xs text-slate-400 mb-5">Set up an automated incident threshold for telemetry deviations.</p>
+      
+      <form id="alert-form" class="space-y-4">
+        <div>
+          <label for="alt-title" class="block text-xs font-semibold text-slate-300 uppercase mb-1">Alert Title *</label>
+          <input type="text" id="alt-title" required placeholder="P99 Latency exceeds 150ms on /checkout" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white text-xs focus:outline-none focus:border-indigo-500" />
+        </div>
+        <div>
+          <label for="alt-severity" class="block text-xs font-semibold text-slate-300 uppercase mb-1">Severity</label>
+          <select id="alt-severity" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white text-xs focus:outline-none focus:border-indigo-500">
+            <option value="warning">Warning</option>
+            <option value="critical">Critical</option>
+            <option value="info">Info</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-all text-xs">
+          Create Incident Trigger
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== GENERATE API KEY MODAL ==================== -->
+  <div id="api-key-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 relative shadow-2xl animate-fade-in">
+      <button onclick="closeApiKeyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <h3 class="font-display font-bold text-xl text-white mb-1">Generate Ingestion Key</h3>
+      <p class="text-xs text-slate-400 mb-5">Create a token for authenticating OpenTelemetry collector spans.</p>
+      
+      <form id="api-key-form" class="space-y-4">
+        <div>
+          <label for="key-name" class="block text-xs font-semibold text-slate-300 uppercase mb-1">Key Description / Name *</label>
+          <input type="text" id="key-name" required placeholder="Production Collector 01" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white text-xs focus:outline-none focus:border-indigo-500" />
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-all text-xs">
+          Generate Secret Token
+        </button>
+      </form>
+
+      <div id="new-key-result" class="hidden mt-4 p-4 rounded-xl bg-black/60 border border-emerald-500/30">
+        <div class="text-xs font-semibold text-emerald-400 mb-1">Key Generated Successfully!</div>
+        <div class="text-[11px] text-slate-400 mb-2">Copy this key now. It will not be displayed in full again:</div>
+        <div class="flex items-center gap-2">
+          <input type="text" id="generated-key-value" readonly class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 font-mono text-xs text-white" />
+          <button onclick="copyGeneratedKey()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-semibold">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PAYMENT / BILLING VERIFICATION MODAL ==================== -->
+  <div id="payment-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 sm:p-8 relative shadow-2xl animate-fade-in">
+      <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="text-left">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg mb-3">
+          <i class="fa-solid fa-crown"></i>
+        </div>
+        <h3 class="font-display font-bold text-2xl text-white">NovaPulse Growth Plan</h3>
+        <p class="text-slate-400 text-xs mt-1 mb-6">Upgrade your workspace to 5M traces/mo, 7-day retention, and custom SLA.</p>
+
+        <!-- Step 1: Pay via Razorpay -->
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 mb-6">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-white uppercase tracking-wider">Step 1: Open Payment Link</span>
+            <span class="text-xs font-bold text-amber-400">$29 / month</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-4">Complete payment through our verified Razorpay checkout page:</p>
+          <a href="https://razorpay.me/@sanjai6676" target="_blank" rel="noopener noreferrer" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-semibold rounded-lg text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-indigo-600/20">
+            <span>Pay on Razorpay (https://razorpay.me/@sanjai6676)</span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        </div>
+
+        <!-- Step 2: Verification of Payment -->
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
+          <span class="text-xs font-bold text-white uppercase tracking-wider">Step 2: Instant Entitlement Upgrade</span>
+          <p class="text-xs text-slate-400 mt-1 mb-3">Once completed on Razorpay, paste your Payment ID (e.g. `pay_...`) or activate immediate instant upgrade:</p>
+          
+          <form id="verify-payment-form" class="space-y-3">
+            <div>
+              <input type="text" id="razorpay-payment-id-input" placeholder="pay_ABC123xyz (optional for instant test upgrade)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-white text-xs font-mono focus:outline-none focus:border-indigo-500" />
+            </div>
+            <button type="submit" id="btn-confirm-upgrade" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-check"></i> Upgrade Workspace to Growth Tier
+            </button>
+          </form>
+        </div>
+
+        <p id="payment-notice" class="hidden mt-4 text-emerald-400 text-xs text-center"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
   <!-- Scripts -->
-  <script src="script.js"></script>
+  <script type="module" src="/script.js"></script>
 </body>
 </html>

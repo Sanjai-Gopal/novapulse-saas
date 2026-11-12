@@ -1,56 +1,153 @@
-/* Custom Animations & Micro-Interactions */
-@keyframes fadeIn {
+/* NovaPulse Visual System: Sleek dark surfaces, violet accents, crisp typography */
+:root {
+  color-scheme: dark;
+  --surface: #0c1222;
+  --line: rgba(148, 163, 184, 0.14);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+}
+
+body {
+  background: #080d18;
+  background-image: radial-gradient(ellipse at 50% -18%, rgba(99, 102, 241, 0.16), transparent 48%);
+}
+
+::selection {
+  background: #6366f1;
+  color: #ffffff;
+}
+
+*:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: 3px;
+}
+
+#navbar {
+  transition: background-color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+#navbar.scrolled {
+  background: rgba(8, 13, 24, 0.96);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+/* Feature card interactive gradient hover */
+.feature-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.feature-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), rgba(129, 140, 248, 0.12), transparent 50%);
+  transition: opacity 0.25s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(129, 140, 248, 0.4);
+}
+
+.feature-card:hover::after {
+  opacity: 1;
+}
+
+.feature-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Tab Links */
+.tab-link {
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab-link.active-tab {
+  color: #818cf8 !important;
+  border-bottom-color: #6366f1 !important;
+}
+
+/* Toast Notifications */
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+@keyframes slideInRight {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateX(30px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Feature card subtle hover illumination */
-.feature-card {
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-.feature-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(to bottom, rgba(99, 102, 241, 0.2), transparent);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-/* Custom Smooth Scrolling */
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
-}
-
-/* Custom Scrollbar for sleek aesthetic */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0b0f19;
+  background: #080d18;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #1e293b;
-  border-radius: 4px;
+  border: 2px solid #080d18;
+  border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
